@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_datetime
 from address.models import Transaction
 
 from .models import Address
+from .serializers import TransactionSerializer
 
 
 # Create your views here.
@@ -24,6 +25,9 @@ def sync_data(request, address, name=None):
     headers = {
         "Content-Type": "application/json"
     }
+
+    Transaction.objects.all().delete()
+    Address.objects.all().delete()
 
     if name:
         name = name.split('-')
@@ -41,17 +45,29 @@ def sync_data(request, address, name=None):
         page = next_page_params.get("page")
 
         for item in data.get('items', []):
-            # if Transaction.objects.filter(transaction_hash=item.get('hash', '')).exists():
-            #     # If a transaction already exists, break the loop to stop processing
-            #     break
+
+            main_address, created = Address.objects.get_or_create(address=address)
+            from_address, created = Address.objects.get_or_create(address=item.get('from_address'))
+            to_address, created = Address.objects.get_or_create(address=item.get('to_address'))
+
+            if name is not None:
+                if from_address.address == address:
+                    from_address.name = name
+                    from_address.save()
+                elif to_address.address == address:
+                    to_address.name = name
+                    to_address.save()
+                elif main_address.address == address:
+                    main_address.name = name
+                    main_address.save()
 
             transaction = Transaction(
                 transaction_hash=item.get('hash', ''),
                 block_number=item.get('block', 0),
-                address=address,
+                address=main_address,
                 status=item.get('status', ''),
-                from_address=item.get('from_address'),
-                to_address=item.get('to_address'),
+                from_address=from_address,
+                to_address=to_address,
                 method=item.get('method', ''),
                 tx_type=item.get('tx_types', )[0],
                 timestamp=parse_datetime(item.get('timestamp')),
@@ -70,61 +86,7 @@ def sync_data(request, address, name=None):
             except IntegrityError:
                 break  # Stop if transaction already exists (handles race conditions)
 
-        # Serializing data
-        transaction_data = []
-
-        for txn in transactions:
-            transaction_data.append({
-                'transaction_hash': txn.transaction_hash,
-                'block_number': txn.block_number,
-                'address': txn.address,
-                'status': txn.status,
-                'from_address': txn.from_address,
-                'to_address': txn.to_address,
-                'method': txn.method,
-                'tx_type': txn.tx_type,
-                'timestamp': txn.timestamp,
-                'gas_used': txn.gas_used,
-                'priority_fee': txn.priority_fee,
-                'base_fee_per_gas': txn.base_fee_per_gas,
-                'total_gas_paid': txn.total_gas_paid,
-                'error_status': txn.error_status,
-                'revert_reason': txn.revert_reason
-            })
-
-            address, created = Address.objects.get_or_create(address=txn.address)
-            from_address, created = Address.objects.get_or_create(address=txn.from_address)
-            to_address, created = Address.objects.get_or_create(address=txn.to_address)
-
-            print('from address is ', from_address, txn.from_address)
-            print('to address is ', to_address, txn.from_address)
-
-            if from_address.address == address and from_address.name != name:
-                from_address.update(name=name)
-            elif to_address.address == address and to_address.name != name:
-                from_address.update(name=name)
-
-            Transaction.objects.get_or_create(
-                transaction_hash=txn.transaction_hash,
-                defaults={
-                    'block_number': txn.block_number,
-                    'address': txn.address,
-                    'status': txn.status,
-                    'from_address': from_address,
-                    'to_address': to_address,
-                    'method': txn.method,
-                    'tx_type': txn.tx_type,
-                    'timestamp': txn.timestamp,
-                    'gas_used': txn.gas_used,
-                    'priority_fee': txn.priority_fee,
-                    'base_fee_per_gas': txn.base_fee_per_gas,
-                    'total_gas_paid': txn.total_gas_paid,
-                    'error_status': txn.error_status,
-                    'revert_reason': txn.revert_reason
-                }
-            )
-
-        return Response(transaction_data, status=status.HTTP_200_OK)
+        return Response(TransactionSerializer(transactions, many=True).data)
     except requests.exceptions.HTTPError as http_err:
         return Response({"error": str(http_err)}, status=response.status_code)
     except requests.exceptions.RequestException as err:
