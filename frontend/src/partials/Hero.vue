@@ -28,9 +28,9 @@
                 View docs <span class="tracking-normal text-blue-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
               </a>
             </div>
-<!--            <div>-->
-<!--              <a class="btn text-gray-300 bg-gradient-to-t from-gray-800 to-gray-700 hover:to-gray-800 w-full shadow-lg" href="#0">Explore Docs</a>-->
-<!--            </div>-->
+            <div>
+              <router-link class="btn text-gray-300 bg-gradient-to-t from-gray-800 to-gray-700 hover:to-gray-800 w-full shadow-lg" to="/demo">View Demo</router-link>
+            </div>
           </div>
 
         </div>

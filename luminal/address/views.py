@@ -9,21 +9,28 @@ from django.utils.dateparse import parse_datetime
 
 from address.models import Transaction
 
+from .models import Address
+
 
 # Create your views here.
 @api_view(['GET'])
-def hello_world(request):
-    return Response('Hello world')
-
+def health_check(request):
+    return Response('Health check succeeded')
 
 
 @api_view(['GET'])
-def get_data(request, address):
+def sync_data(request, address, name=None):
     url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
     url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
     headers = {
         "Content-Type": "application/json"
     }
+
+    if name:
+        name = name.split('-')
+        for i in range(len(name)):
+            name[i] = name[i].capitalize()
+        name = ' '.join(name)
 
     try:
         response = requests.get(url, headers=headers)
@@ -32,13 +39,13 @@ def get_data(request, address):
         transactions = []
         next_page_params = data.get("next_page_params")
         block_number = next_page_params.get("block_number")
-        page=next_page_params.get("page")
+        page = next_page_params.get("page")
 
         for item in data.get('items', []):
-            if Transaction.objects.filter(transaction_hash=item.get('hash', '')).exists():
-                # If a transaction already exists, break the loop to stop processing
-                break
-            
+            # if Transaction.objects.filter(transaction_hash=item.get('hash', '')).exists():
+            #     # If a transaction already exists, break the loop to stop processing
+            #     break
+
             transaction = Transaction(
                 transaction_hash=item.get('hash', ''),
                 block_number=item.get('block', 0),
@@ -66,6 +73,7 @@ def get_data(request, address):
 
         # Serializing data
         transaction_data = []
+
         for txn in transactions:
             transaction_data.append({
                 'transaction_hash': txn.transaction_hash,
@@ -85,14 +93,26 @@ def get_data(request, address):
                 'revert_reason': txn.revert_reason
             })
 
+            address, created = Address.objects.get_or_create(address=txn.address)
+            from_address, created = Address.objects.get_or_create(address=txn.from_address)
+            to_address, created = Address.objects.get_or_create(address=txn.to_address)
+
+            print('from address is ', from_address, txn.from_address)
+            print('to address is ', to_address, txn.from_address)
+
+            if from_address.address == address and from_address.name != name:
+                from_address.update(name=name)
+            elif to_address.address == address and to_address.name != name:
+                from_address.update(name=name)
+
             Transaction.objects.get_or_create(
                 transaction_hash=txn.transaction_hash,
                 defaults={
                     'block_number': txn.block_number,
                     'address': txn.address,
                     'status': txn.status,
-                    'from_address': txn.from_address,
-                    'to_address': txn.to_address,
+                    'from_address': from_address,
+                    'to_address': to_address,
                     'method': txn.method,
                     'tx_type': txn.tx_type,
                     'timestamp': txn.timestamp,
