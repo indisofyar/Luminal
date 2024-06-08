@@ -20,7 +20,6 @@ def hello_world(request):
 @api_view(['GET'])
 def get_data(request, address):
     url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
-    url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
     headers = {
         "Content-Type": "application/json"
     }
