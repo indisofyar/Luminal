@@ -1,0 +1,22 @@
+{% extends "drf_spectacular/templates/swagger_ui.html" %}
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    console.log('customizing stuff');
+    $(function () {
+        var ApiVersionAuthorization = function () {};
+        ApiVersionAuthorization.prototype.apply = function (obj) {
+            obj.headers['Accept'] += '; version=1.0';
+            return true;
+        };
+        swaggerUi.api.clientAuthorizations.add(
+            'api_version',
+            new ApiVersionAuthorization()
+        );
+    });
+</script>
+{% endblock extra_scripts %}
+
+
+
