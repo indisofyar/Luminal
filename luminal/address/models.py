@@ -4,6 +4,8 @@ from django.db import models
 class Address(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    last_synced = models.DateTimeField(null=True)
+    last_block_number = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         if self.address:

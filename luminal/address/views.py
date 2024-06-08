@@ -85,7 +85,10 @@ def sync_data(request, address, name=None):
             try:
                 transaction.save()
             except IntegrityError:
-                break  # Stop if transaction already exists (handles race conditions)
+                break
+
+        main_address.last_block_number = transactions[len(transactions) - 1].block_number
+        main_address.save()
 
         return Response(TransactionSerializer(transactions, many=True).data)
     except requests.exceptions.HTTPError as http_err:
