@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Sum, Avg
 from django.shortcuts import render
 import requests
 from rest_framework.decorators import api_view
@@ -11,7 +12,7 @@ from django.utils.dateparse import parse_datetime
 from address.models import Transaction
 
 from .models import Address
-from .serializers import TransactionSerializer
+from .serializers import TransactionSerializer, AddressSerializer
 
 
 # Create your views here.
@@ -43,9 +44,19 @@ def sync_data(request, address, name=None):
         page = next_page_params.get("page")
 
         for item in data.get('items', []):
+
             main_address, created = Address.objects.get_or_create(address=address)
-            from_address, created = Address.objects.get_or_create(address=item.get('from_address'))
-            to_address, created = Address.objects.get_or_create(address=item.get('to_address'))
+
+            found_from_address = item.get('from')
+            found_to_address = item.get('to')
+
+            from_address = None
+            to_address = None
+
+            if found_from_address:
+                from_address, created = Address.objects.get_or_create(address=found_from_address['hash'])
+            if found_to_address:
+                to_address, created = Address.objects.get_or_create(address=found_to_address['hash'])
 
             if name is not None:
                 if from_address.address == address:
@@ -62,13 +73,11 @@ def sync_data(request, address, name=None):
                 break
 
             transactionCost = calculate_transaction_cost_xrp(
-                base_fee_per_gas=int(item.get('base_fee_per_gas', 0))/10**9,
+                base_fee_per_gas=int(item.get('base_fee_per_gas', 0)) / 10 ** 9,
                 priority_fee_per_gas=2.5,
                 total_gas_used=int(item.get('gas_used', 0))
             )
 
-            
-            
             transaction = Transaction(
                 transaction_hash=item.get('hash', ''),
                 block_number=item.get('block', 0),
@@ -102,6 +111,7 @@ def sync_data(request, address, name=None):
     except requests.exceptions.RequestException as err:
         return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(['GET'])
 def get_transactions_by_address(request, address):
     """
@@ -112,17 +122,21 @@ def get_transactions_by_address(request, address):
     if not queryset.exists():
         return Response({'message': 'No transactions found for this address.'}, status=404)
 
-    # Initialize pagination
-    paginator = PageNumberPagination()
-    page = paginator.paginate_queryset(queryset, request)
-    if page is not None:
-        serializer = TransactionSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
     # Fallback if pagination is not applicable
     serializer = TransactionSerializer(queryset, many=True)
-    return Response(serializer.data)
 
+    total_gas_spent = 0
+    total_fees = 0
+    for transaction in queryset:
+        total_gas_spent += int(transaction.total_gas_paid)
+
+    response = {
+        'transactions': serializer.data,
+        'average_gas_price': total_gas_spent / queryset.count(),
+        'average_fee_paid': total_fees / queryset.count(),
+    }
+
+    return Response(response)
 
 def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total_gas_used):
     """
@@ -140,9 +154,14 @@ def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total
     total_fee_per_gas = base_fee_per_gas + priority_fee_per_gas
 
     # Convert Gwei to XRP (1 Gwei = 10^-9 ETH/XRP)
-    total_fee_per_gas_in_xrp = total_fee_per_gas * 10**-9
+    total_fee_per_gas_in_xrp = total_fee_per_gas * 10 ** -9
 
     # Calculate total transaction cost in XRP
     total_transaction_cost_xrp = total_fee_per_gas_in_xrp * total_gas_used
 
     return total_transaction_cost_xrp
+
+
+@api_view(['GET'])
+def all_address(request):
+    return Response(AddressSerializer(Address.objects.filter(name__isnull=False), many=True).data)

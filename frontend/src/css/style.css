@@ -17,5 +17,19 @@
     .rtl {
         direction: rtl;
     }
+    .card {
+        @apply p-4 bg-gray-100 rounded-lg text-black
+    }
+    .card-title{
+        @apply font-bold text-xl text-black
+    }
 }
 
+@layer components {
+    .card {
+        @apply bg-gray-100 text-black p-20 rounded-lg
+    }
+    .card-title {
+        @apply text-lg font-bold
+    }
+}
