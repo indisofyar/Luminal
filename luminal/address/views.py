@@ -47,9 +47,19 @@ def sync_data(request, address, name=None):
         page = next_page_params.get("page")
 
         for item in data.get('items', []):
+
             main_address, created = Address.objects.get_or_create(address=address)
-            from_address, created = Address.objects.get_or_create(address=item.get('from_address'))
-            to_address, created = Address.objects.get_or_create(address=item.get('to_address'))
+
+            found_from_address = item.get('from')
+            found_to_address = item.get('to')
+
+            from_address = None
+            to_address = None
+
+            if found_from_address:
+                from_address, created = Address.objects.get_or_create(address=found_from_address['hash'])
+            if found_to_address:
+                to_address, created = Address.objects.get_or_create(address=found_to_address['hash'])
 
             if name is not None:
                 if from_address.address == address:
@@ -112,21 +122,24 @@ def get_transactions_by_address(request, address):
     """
     # Filter transactions by address
     queryset = Transaction.objects.filter(address__address=address)
-    serializer = TransactionSerializer(queryset, many=True).data
+    if not queryset.exists():
+        return Response({'message': 'No transactions found for this address.'}, status=404)
 
-    total_gas_fees = 0
+    # Fallback if pagination is not applicable
+    serializer = TransactionSerializer(queryset, many=True)
 
-    total_gas_fees = queryset.aggregate(total_gas=Sum('total_gas_paid'))['total_gas'] or 0
-    average_gas_fee = queryset.aggregate(average_gas=Avg('total_gas_paid'))['average_gas'] or 0
+    total_gas_spent = 0
+    total_fees = 0
+    for transaction in queryset:
+        total_gas_spent += int(transaction.total_gas_paid)
 
     response = {
-        'average_gas_fee': average_gas_fee,
-        'transactions': serializer
+        'transactions': serializer.data,
+        'average_gas_price': total_gas_spent / queryset.count(),
+        'average_fee_paid': total_fees / queryset.count(),
     }
 
     return Response(response)
-
-
 
 def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total_gas_used):
     """

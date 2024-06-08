@@ -25,3 +25,11 @@
     }
 }
 
+@layer components {
+    .card {
+        @apply bg-gray-100 text-black p-8 rounded-lg
+    }
+    .card-title {
+        @apply text-lg font-bold
+    }
+}
