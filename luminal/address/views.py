@@ -37,6 +37,14 @@ def get_data(request, address):
             if Transaction.objects.filter(transaction_hash=item.get('hash', '')).exists():
                 # If a transaction already exists, break the loop to stop processing
                 break
+
+            transactionCost = calculate_transaction_cost_xrp(
+                base_fee_per_gas=int(item.get('base_fee_per_gas', 0))/10**9,
+                priority_fee_per_gas=2.5,
+                total_gas_used=int(item.get('gas_used', 0))
+            )
+
+            
             
             transaction = Transaction(
                 transaction_hash=item.get('hash', ''),
@@ -51,8 +59,7 @@ def get_data(request, address):
                 gas_used=int(item.get('gas_used', 0)),
                 priority_fee=int(item.get('priority_fee', 0)),
                 base_fee_per_gas=int(item.get('base_fee_per_gas', 0)),
-                total_gas_paid=(int(item.get('base_fee_per_gas', 0)) + int(item.get('priority_fee', 0))) * int(
-                    item.get('gas_used', 0)),
+                total_gas_paid=transactionCost,
                 error_status=item.get('result', ''),
                 revert_reason=item.get('revert_reason', '')
             )
@@ -109,3 +116,28 @@ def get_data(request, address):
         return Response({"error": str(http_err)}, status=response.status_code)
     except requests.exceptions.RequestException as err:
         return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total_gas_used):
+    """
+    Calculates the total transaction cost in XRP.
+
+    Parameters:
+    - base_fee_per_gas (float): The base fee per gas in Gwei.
+    - priority_fee_per_gas (float): The priority fee per gas in Gwei.
+    - total_gas_used (int): Total gas used in the transaction.
+
+    Returns:
+    - float: Total transaction cost in XRP.
+    """
+    # Calculate the total fee per gas in Gwei
+    total_fee_per_gas = base_fee_per_gas + priority_fee_per_gas
+
+    # Convert Gwei to XRP (1 Gwei = 10^-9 ETH/XRP)
+    total_fee_per_gas_in_xrp = total_fee_per_gas * 10**-9
+
+    # Calculate total transaction cost in XRP
+    total_transaction_cost_xrp = total_fee_per_gas_in_xrp * total_gas_used
+
+    return total_transaction_cost_xrp
