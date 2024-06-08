@@ -4,5 +4,5 @@ from .views import hello_world, get_data
 
 urlpatterns = [
     path('hello-world/', hello_world),
-    path('get-data/<str:address>/', get_data),
+    path('fetch-data/<str:address>/', get_data),
 ]
