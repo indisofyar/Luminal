@@ -16,8 +16,10 @@ def hello_world(request):
     return Response('Hello world')
 
 
+
 @api_view(['GET'])
 def get_data(request, address):
+    url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
     url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
     headers = {
         "Content-Type": "application/json"
@@ -50,6 +52,8 @@ def get_data(request, address):
                 gas_used=int(item.get('gas_used', 0)),
                 priority_fee=int(item.get('priority_fee', 0)),
                 base_fee_per_gas=int(item.get('base_fee_per_gas', 0)),
+                total_gas_paid=(int(item.get('base_fee_per_gas', 0)) + int(item.get('priority_fee', 0))) * int(
+                    item.get('gas_used', 0)),
                 total_gas_paid=(int(item.get('base_fee_per_gas', 0)) + int(item.get('priority_fee', 0))) * int(
                     item.get('gas_used', 0)),
                 error_status=item.get('result', ''),
