@@ -15,13 +15,13 @@
           <!-- CTA content -->
           <div class="mb-6 lg:mr-16 lg:mb-0 text-center lg:text-left">
             <h3 class="text-4xl font-bold font-uncut-sans mb-2">Get started with Luminal</h3>
-            <p class="text-blue-200">It only takes a few minutes to get started with Neon. Understand your users, start free, today.</p>
+            <p class="text-blue-200">Start to better understand your data, so that you can better understand your customers.</p>
           </div>
 
           <!-- CTA button -->
           <div class="shrink-0">
             <a class="btn-sm text-white bg-gradient-to-t from-blue-600 to-blue-400 hover:to-blue-500 w-full group shadow-lg" href="#0">
-              Start Free Trial <span class="tracking-normal text-blue-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
+              View docs<span class="tracking-normal text-blue-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
             </a>
           </div>
 

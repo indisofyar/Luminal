@@ -21,10 +21,10 @@
             </div>
           </div>
           <h1 class="h1 font-uncut-sans mb-6" data-aos="zoom-out" data-aos-delay="100">Understand XRPL data <em class="font-italic">seamlessly</em></h1>
-          <p class="text-xl text-gray-400 mb-10" data-aos="zoom-out" data-aos-delay="200">Our landing page template works on all devices, so you only have to set it up once, and get beautiful results forever.</p>
+          <p class="text-xl text-gray-400 mb-10" data-aos="zoom-out" data-aos-delay="200">Luminal is the API for XRPL. It enables users to easily interface with smart contract data and understand their users to a greater degree.</p>
           <div class="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4" data-aos="zoom-out" data-aos-delay="300">
             <div>
-              <a class="btn text-white bg-gradient-to-t from-blue-600 to-blue-400 hover:to-blue-500 w-full shadow-lg group" href="#0">
+              <a class="btn text-white bg-gradient-to-t from-blue-600 to-blue-400 hover:to-blue-500 w-full shadow-lg group" href="https://luminal-production.up.railway.app/">
                 View docs <span class="tracking-normal text-blue-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
               </a>
             </div>
