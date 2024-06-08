@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from django.shortcuts import render
 import requests
 from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -91,3 +92,25 @@ def sync_data(request, address, name=None):
         return Response({"error": str(http_err)}, status=response.status_code)
     except requests.exceptions.RequestException as err:
         return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def get_transactions_by_address(request, address):
+    """
+    API endpoint to retrieve transactions for a given address in a paginated format.
+    """
+    # Filter transactions by address
+    queryset = Transaction.objects.filter(address__address=address)
+    if not queryset.exists():
+        return Response({'message': 'No transactions found for this address.'}, status=404)
+
+    # Initialize pagination
+    paginator = PageNumberPagination()
+    page = paginator.paginate_queryset(queryset, request)
+    if page is not None:
+        serializer = TransactionSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    # Fallback if pagination is not applicable
+    serializer = TransactionSerializer(queryset, many=True)
+    return Response(serializer.data)
