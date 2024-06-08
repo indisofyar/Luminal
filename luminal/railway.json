@@ -5,7 +5,6 @@
     "buildCommand": "pip3 install -r requirements.txt && python3 manage.py migrate --settings=luminal.settings.production && python3 manage.py collectstatic --noinput --settings=luminal.settings.production"
   },
   "deploy": {
-    "runtime": "Python 3.10.12",
     "startCommand": "gunicorn luminal.wsgi:application --bind 0.0.0.0:$PORT --env DJANGO_SETTINGS_MODULE=luminal.settings.production",
     "healthcheckPath": "/",
     "healthcheckTimeout": 100,
