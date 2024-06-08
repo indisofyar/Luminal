@@ -43,9 +43,12 @@ INSTALLED_APPS = [
     'drf_spectacular_sidecar',  # required for Django collectstatic discovery
     'address',
     'documentation',
+    'django_crontab',
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -141,3 +144,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+CRONJOBS = [
+    ('* * * * *', 'luminal.luminal.cron_jobs.hello_world'),
+]

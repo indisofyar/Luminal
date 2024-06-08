@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from django.shortcuts import render
 import requests
 from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -9,20 +10,31 @@ from django.utils.dateparse import parse_datetime
 
 from address.models import Transaction
 
+from .models import Address
+from .serializers import TransactionSerializer
+
 
 # Create your views here.
 @api_view(['GET'])
-def hello_world(request):
-    return Response('Hello world')
-
+def health_check(request):
+    return Response('Health check succeeded')
 
 
 @api_view(['GET'])
-def get_data(request, address):
+def sync_data(request, address, name=None):
     url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
     headers = {
         "Content-Type": "application/json"
     }
+
+    Transaction.objects.all().delete()
+    Address.objects.all().delete()
+
+    if name:
+        name = name.split('-')
+        for i in range(len(name)):
+            name[i] = name[i].capitalize()
+        name = ' '.join(name)
 
     try:
         response = requests.get(url, headers=headers)
@@ -31,9 +43,23 @@ def get_data(request, address):
         transactions = []
         next_page_params = data.get("next_page_params")
         block_number = next_page_params.get("block_number")
-        page=next_page_params.get("page")
+        page = next_page_params.get("page")
 
         for item in data.get('items', []):
+            main_address, created = Address.objects.get_or_create(address=address)
+            from_address, created = Address.objects.get_or_create(address=item.get('from_address'))
+            to_address, created = Address.objects.get_or_create(address=item.get('to_address'))
+
+            if name is not None:
+                if from_address.address == address:
+                    from_address.name = name
+                    from_address.save()
+                elif to_address.address == address:
+                    to_address.name = name
+                    to_address.save()
+                elif main_address.address == address:
+                    main_address.name = name
+                    main_address.save()
             if Transaction.objects.filter(transaction_hash=item.get('hash', '')).exists():
                 # If a transaction already exists, break the loop to stop processing
                 break
@@ -49,10 +75,10 @@ def get_data(request, address):
             transaction = Transaction(
                 transaction_hash=item.get('hash', ''),
                 block_number=item.get('block', 0),
-                address=address,
+                address=main_address,
                 status=item.get('status', ''),
-                from_address=item.get('from_address'),
-                to_address=item.get('to_address'),
+                from_address=from_address,
+                to_address=to_address,
                 method=item.get('method', ''),
                 tx_type=item.get('tx_types', )[0],
                 timestamp=parse_datetime(item.get('timestamp')),
@@ -68,55 +94,37 @@ def get_data(request, address):
             try:
                 transaction.save()
             except IntegrityError:
-                break  # Stop if transaction already exists (handles race conditions)
+                break
 
-        # Serializing data
-        transaction_data = []
-        for txn in transactions:
-            transaction_data.append({
-                'transaction_hash': txn.transaction_hash,
-                'block_number': txn.block_number,
-                'address': txn.address,
-                'status': txn.status,
-                'from_address': txn.from_address,
-                'to_address': txn.to_address,
-                'method': txn.method,
-                'tx_type': txn.tx_type,
-                'timestamp': txn.timestamp,
-                'gas_used': txn.gas_used,
-                'priority_fee': txn.priority_fee,
-                'base_fee_per_gas': txn.base_fee_per_gas,
-                'total_gas_paid': txn.total_gas_paid,
-                'error_status': txn.error_status,
-                'revert_reason': txn.revert_reason
-            })
+        main_address.last_block_number = transactions[len(transactions) - 1].block_number
+        main_address.save()
 
-            Transaction.objects.get_or_create(
-                transaction_hash=txn.transaction_hash,
-                defaults={
-                    'block_number': txn.block_number,
-                    'address': txn.address,
-                    'status': txn.status,
-                    'from_address': txn.from_address,
-                    'to_address': txn.to_address,
-                    'method': txn.method,
-                    'tx_type': txn.tx_type,
-                    'timestamp': txn.timestamp,
-                    'gas_used': txn.gas_used,
-                    'priority_fee': txn.priority_fee,
-                    'base_fee_per_gas': txn.base_fee_per_gas,
-                    'total_gas_paid': txn.total_gas_paid,
-                    'error_status': txn.error_status,
-                    'revert_reason': txn.revert_reason
-                }
-            )
-
-        return Response(transaction_data, status=status.HTTP_200_OK)
+        return Response(TransactionSerializer(transactions, many=True).data)
     except requests.exceptions.HTTPError as http_err:
         return Response({"error": str(http_err)}, status=response.status_code)
     except requests.exceptions.RequestException as err:
         return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+def get_transactions_by_address(request, address):
+    """
+    API endpoint to retrieve transactions for a given address in a paginated format.
+    """
+    # Filter transactions by address
+    queryset = Transaction.objects.filter(address__address=address)
+    if not queryset.exists():
+        return Response({'message': 'No transactions found for this address.'}, status=404)
+
+    # Initialize pagination
+    paginator = PageNumberPagination()
+    page = paginator.paginate_queryset(queryset, request)
+    if page is not None:
+        serializer = TransactionSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    # Fallback if pagination is not applicable
+    serializer = TransactionSerializer(queryset, many=True)
+    return Response(serializer.data)
 
 
 def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total_gas_used):

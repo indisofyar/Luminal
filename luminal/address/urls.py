@@ -1,8 +1,10 @@
 from django.urls import path
 
-from .views import hello_world, get_data
+from .views import sync_data, health_check, get_transactions_by_address
 
 urlpatterns = [
-    path('hello-world/', hello_world),
-    path('fetch-data/<str:address>/', get_data),
+    path('health-check/', health_check),
+    path('sync-data/<str:address>/<str:name>/', sync_data),
+    path('sync-data/<str:address>/', sync_data),
+    path('<str:address>/', get_transactions_by_address),
 ]
