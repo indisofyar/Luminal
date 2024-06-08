@@ -21,7 +21,6 @@ def health_check(request):
 @api_view(['GET'])
 def sync_data(request, address, name=None):
     url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
-    url = "https://evm-sidechain.xrpl.org/api/v2/addresses/" + address + "/transactions"
     headers = {
         "Content-Type": "application/json"
     }
