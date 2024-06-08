@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     'rest_framework',
     'drf_spectacular',  # API UI
+    'drf_spectacular_sidecar',  # required for Django collectstatic discovery
     'address',
 ]
 
@@ -81,6 +82,9 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'The XRPL API app',
     'VERSION': '0.0.1',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
     # OTHER SETTINGS
 }
 
