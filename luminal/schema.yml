@@ -1,0 +1,7 @@
+openapi: 3.0.3
+info:
+  title: Luminal API
+  version: 0.0.1
+  description: The XRPL API app
+paths: {}
+components: {}
