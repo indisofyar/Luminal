@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import Sum, Avg
 from django.shortcuts import render
 import requests
 from rest_framework.decorators import api_view
@@ -11,7 +12,7 @@ from django.utils.dateparse import parse_datetime
 from address.models import Transaction
 
 from .models import Address
-from .serializers import TransactionSerializer
+from .serializers import TransactionSerializer, AddressSerializer
 
 
 # Create your views here.
@@ -65,13 +66,11 @@ def sync_data(request, address, name=None):
                 break
 
             transactionCost = calculate_transaction_cost_xrp(
-                base_fee_per_gas=int(item.get('base_fee_per_gas', 0))/10**9,
+                base_fee_per_gas=int(item.get('base_fee_per_gas', 0)) / 10 ** 9,
                 priority_fee_per_gas=2.5,
                 total_gas_used=int(item.get('gas_used', 0))
             )
 
-            
-            
             transaction = Transaction(
                 transaction_hash=item.get('hash', ''),
                 block_number=item.get('block', 0),
@@ -105,6 +104,7 @@ def sync_data(request, address, name=None):
     except requests.exceptions.RequestException as err:
         return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(['GET'])
 def get_transactions_by_address(request, address):
     """
@@ -112,19 +112,20 @@ def get_transactions_by_address(request, address):
     """
     # Filter transactions by address
     queryset = Transaction.objects.filter(address__address=address)
-    if not queryset.exists():
-        return Response({'message': 'No transactions found for this address.'}, status=404)
+    serializer = TransactionSerializer(queryset, many=True).data
 
-    # Initialize pagination
-    paginator = PageNumberPagination()
-    page = paginator.paginate_queryset(queryset, request)
-    if page is not None:
-        serializer = TransactionSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
+    total_gas_fees = 0
 
-    # Fallback if pagination is not applicable
-    serializer = TransactionSerializer(queryset, many=True)
-    return Response(serializer.data)
+    total_gas_fees = queryset.aggregate(total_gas=Sum('total_gas_paid'))['total_gas'] or 0
+    average_gas_fee = queryset.aggregate(average_gas=Avg('total_gas_paid'))['average_gas'] or 0
+
+    response = {
+        'average_gas_fee': average_gas_fee,
+        'transactions': serializer
+    }
+
+    return Response(response)
+
 
 
 def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total_gas_used):
@@ -143,9 +144,14 @@ def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total
     total_fee_per_gas = base_fee_per_gas + priority_fee_per_gas
 
     # Convert Gwei to XRP (1 Gwei = 10^-9 ETH/XRP)
-    total_fee_per_gas_in_xrp = total_fee_per_gas * 10**-9
+    total_fee_per_gas_in_xrp = total_fee_per_gas * 10 ** -9
 
     # Calculate total transaction cost in XRP
     total_transaction_cost_xrp = total_fee_per_gas_in_xrp * total_gas_used
 
     return total_transaction_cost_xrp
+
+
+@api_view(['GET'])
+def address(request):
+    return Response(AddressSerializer(Address.objects.all(), many=True).data)

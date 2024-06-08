@@ -7,4 +7,5 @@ urlpatterns = [
     path('sync-data/<str:address>/<str:name>/', sync_data),
     path('sync-data/<str:address>/', sync_data),
     path('<str:address>/', get_transactions_by_address),
+    path('all/', all_addresses),
 ]
