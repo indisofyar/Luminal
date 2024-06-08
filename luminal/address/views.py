@@ -27,9 +27,6 @@ def sync_data(request, address, name=None):
         "Content-Type": "application/json"
     }
 
-    Transaction.objects.all().delete()
-    Address.objects.all().delete()
-
     if name:
         name = name.split('-')
         for i in range(len(name)):
