@@ -167,4 +167,4 @@ def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total
 
 @api_view(['GET'])
 def all_address(request):
-    return Response(AddressSerializer(Address.objects.all(), many=True).data)
+    return Response(AddressSerializer(Address.objects.filter(name__isnull=False), many=True).data)
