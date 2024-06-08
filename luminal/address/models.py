@@ -3,6 +3,7 @@ from django.db import models
 class Transaction(models.Model):
     transaction_hash = models.CharField(max_length=255, primary_key=True)
     block_number = models.IntegerField()
+    address = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=255, blank=True, null=True)
     from_address = models.CharField(max_length=255, blank=True, null=True)
     to_address = models.CharField(max_length=255, blank=True, null=True)
