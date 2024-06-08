@@ -34,13 +34,13 @@
 
           <!-- Desktop sign in links -->
           <ul class="flex grow justify-end flex-wrap items-center">
-            <li>
-              <router-link class="font-medium text-gray-400 hover:text-blue-500 px-3 lg:px-5 py-2 flex items-center transition duration-150 ease-in-out" to="/signin">Sign in</router-link>
-            </li>
+<!--            <li>-->
+<!--              <router-link class="font-medium text-gray-400 hover:text-blue-500 px-3 lg:px-5 py-2 flex items-center transition duration-150 ease-in-out" to="/signin">Sign in</router-link>-->
+<!--            </li>-->
             <li class="ml-3">
-              <router-link class="btn-sm text-white bg-gradient-to-t from-blue-600 to-blue-400 hover:to-blue-500 w-full shadow-lg group" to="#0">
-                Get Started <span class="tracking-normal text-blue-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
-              </router-link>
+              <a class="btn-sm text-white bg-gradient-to-t from-blue-600 to-blue-400 hover:to-blue-500 w-full shadow-lg group" href="https://luminal-production.up.railway.app/">
+                View docs <span class="tracking-normal text-blue-200 group-hover:translate-x-0.5 transition-transform duration-150 ease-in-out ml-1">-&gt;</span>
+              </a>
             </li>
           </ul>
 

@@ -31,81 +31,28 @@
               </svg>
             </router-link>
           </div>
-          <div class="text-sm text-gray-600">
-            <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Terms</a> · <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Privacy Policy</a>
-          </div>
+<!--          <div class="text-sm text-gray-600">-->
+<!--            <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Terms</a> · <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Privacy Policy</a>-->
+<!--          </div>-->
+        </div>
+        <div class="lg:col-span-6">
+
         </div>
 
-        <!-- 2nd block -->
-        <div class="sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h6 class="text-xs text-gray-200 font-semibold uppercase mb-2">Products</h6>
-          <ul class="text-sm space-y-2">
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Neon Manage</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Neon Analyse</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Neon Launch</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Experimentation</a>
-            </li>
-          </ul>
-        </div>
-
-        <!-- 3rd block -->
-        <div class="sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h6 class="text-xs text-gray-200 font-semibold uppercase mb-2">Resources</h6>
-          <ul class="text-sm space-y-2">
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Blog</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Cheat Sheet</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Channel Partners</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Affiliate Program</a>
-            </li>
-          </ul>
-        </div>
-
-        <!-- 4th block -->
-        <div class="sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h6 class="text-xs text-gray-200 font-semibold uppercase mb-2">Compare</h6>
-          <ul class="text-sm space-y-2">
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Session Recording</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Feature Flags</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Heatmaps</a>
-            </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Correlation Analysis</a>
-            </li>
-          </ul>
-        </div>
 
         <!-- 5th block -->
         <div class="sm:col-span-6 md:col-span-3 lg:col-span-2">
-          <h6 class="text-xs text-gray-200 font-semibold uppercase mb-2">Company</h6>
+<!--          <h6 class="text-xs text-gray-200 font-semibold uppercase mb-2">Links</h6>-->
           <ul class="text-sm space-y-2">
             <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">About Us</a>
+              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="https://luminal-production.up.railway.app/">Documentation</a>
             </li>
             <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Our Story</a>
+              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="https://github.com/indisofyar/Luminal/">Github Repo</a>
             </li>
-            <li>
-              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Work With Us</a>
-            </li>
+<!--            <li>-->
+<!--              <a class="text-gray-400 hover:text-blue-500 transition duration-150 ease-in-out" href="#0">Work With Us</a>-->
+<!--            </li>-->
           </ul>
         </div>
 
