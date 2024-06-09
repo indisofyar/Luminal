@@ -109,7 +109,6 @@ def sync_data(request, address, name=None):
     except requests.exceptions.HTTPError as http_err:
         return Response({"error": str(http_err)}, status=response.status_code)
     except requests.exceptions.RequestException as err:
-        return Response({"error": str(err)})
         return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
