@@ -107,8 +107,10 @@ def sync_data(request, address, name=None):
 
         return Response(TransactionSerializer(transactions, many=True).data)
     except requests.exceptions.HTTPError as http_err:
+        print(http_err)
         return Response({"error": str(http_err)}, status=response.status_code)
     except requests.exceptions.RequestException as err:
+        print(err)
         return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
