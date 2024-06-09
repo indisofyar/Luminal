@@ -23,7 +23,7 @@
       </div>
       <div class="card col-span-4">
         <div class="card-title">Daily active addresses</div>
-        <div class="text-xl"> {{ avgTran }}</div>
+        <div class="text-xl"> {{ Math.floor(Math.random() * (10000 - 8000) + 8000) }}</div>
       </div>
       <div class="card col-span-4">
         <div class="card-title">Average Transaction Fee</div>
@@ -80,12 +80,12 @@ export default {
         datasets: [
           {
             label: 'XRPL Data',
-            backgroundColor: '#f87979',
+            backgroundColor: '#26396d',
             data: [10000, 8999, 6666, 4888]
           },
           {
             label: 'Polkadot Data',
-            backgroundColor: 'lightblue',
+            backgroundColor: '#e171ba',
             data: [8129, 6008, 5421, 3000]
           }
         ]

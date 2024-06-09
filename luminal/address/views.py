@@ -140,6 +140,21 @@ def get_transactions_by_address(request, address):
     }
 
     return Response(response)
+@api_view(['GET'])
+def gas_fee(request, address):
+    queryset = Transaction.objects.filter(address__address=address)
+    if not queryset.exists():
+        return Response({'message': 'No transactions found for this address.'}, status=404)
+
+    # Fallback if pagination is not applicable
+    serializer = TransactionSerializer(queryset, many=True)
+
+    total_gas_spent = 0
+    total_fees = 0
+    for transaction in queryset:
+        total_gas_spent += int(transaction.total_gas_paid)
+
+    return Response(total_gas_spent / queryset.count())
 
 def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total_gas_used):
     """
