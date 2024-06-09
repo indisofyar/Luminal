@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'drf_spectacular',  # API UI
     'drf_spectacular_sidecar',  # required for Django collectstatic discovery
     'address',
-    'documentation',
     'django_crontab',
     "corsheaders",
 ]

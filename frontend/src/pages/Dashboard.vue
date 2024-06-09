@@ -4,15 +4,15 @@
       <div class="text-xl font-bold" v-if="transactions">
         {{ transactions[0].address.name }}
       </div>
-      <div class="bg-slate-800 rounded-xl p-4 relative" >
+      <div class="bg-slate-800 rounded-xl p-4 relative">
         <div @click="isOpen = !isOpen">{{ transactions[0].address.address }}</div>
         <div class="p-4 bg-slate-700 top-[65px] rounded-xl absolute h-[300px]  left-0 flex flex-col" v-if="isOpen">
-          <div v-for="a in addresses" class="w-full flex gap-4 hover:bg-slate-400 p-4 rounded-xl pointer" @click="isOpen = false; address = a.address">
-            <strong> {{a.name}} </strong>   {{a.address}}
+          <div v-for="a in addresses" class="w-full flex gap-4 hover:bg-slate-400 p-4 rounded-xl pointer"
+               @click="isOpen = false; address = a.address">
+            <strong> {{ a.name }} </strong> {{ a.address }}
           </div>
         </div>
       </div>
-
     </div>
 
     <section class="grid grid-cols-12 mt-8 gap-4">
@@ -26,14 +26,31 @@
         <div class="text-xl"> {{ Math.floor(Math.random() * (10000 - 8000) + 8000) }}</div>
       </div>
       <div class="card col-span-4">
-        <div class="card-title">Average Transaction Fee</div>
-        <div class="text-xl"> {{ avgTran }}</div>
+        <div class="card-title">Transactions</div>
+        <div class="flex w-full overflow-hidden rounded-xl text-center">
+          <div
+              class="bg-green-100"
+              :style="{ width: ((resData.succeded_transactions / (resData.succeded_transactions + resData.failed_transactions)) * 100) + '%' }"
+          >
+            {{ resData.succeded_transactions }} Succeeded
+          </div>
+          <div
+              class="bg-red-100"
+              :style="{ width: ((resData.failed_transactions / (resData.succeded_transactions + resData.failed_transactions)) * 100) + '%' }"
+              v-if="resData.failed_transactions > 10"
+          >
+            {{ resData.failed_transactions }} Failed
+          </div>
+        </div>
       </div>
       <div class="card h-[500px] col-span-6">
         <div class="card-title">Journey Mapping</div>
         <Bar :data="data" :options="options" class="pb-8"/>
       </div>
-
+      <div class="card h-[500px] col-span-6">
+        <div class="card-title">Fees over time</div>
+        <Line :data="resData.fees_over_time_graph" :options="options" class="pb-8"/>
+      </div>
     </section>
     <!--    {{transactions}}-->
   </div>
@@ -48,15 +65,17 @@ import {
   Legend,
   BarElement,
   CategoryScale,
-  LinearScale
+  LinearScale,
+  PointElement,
+  LineElement
 } from 'chart.js'
-import {Bar} from 'vue-chartjs'
+import {Bar, Line} from 'vue-chartjs'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+ChartJS.register(CategoryScale, PointElement, LineElement, LinearScale, BarElement, Title, Tooltip, Legend)
 
 export default {
   name: "Dashboard",
-  components: {Bar},
+  components: {Bar, Line},
   data() {
     return {
       name: null,
@@ -66,6 +85,7 @@ export default {
       loaded: false,
       transactions: [],
       avgTran: null,
+      resData: null,
       options: {
         responsive: true,
         maintainAspectRatio: false
@@ -96,9 +116,9 @@ export default {
     getData() {
       const vm = this;
       this.$axios.get('/api/address/' + vm.address + '/').then((res) => {
-        console.log(res.data)
         vm.avgTran = res.data.average_gas_price
         vm.transactions = res.data.transactions
+        vm.resData = res.data
       })
     },
     getAddresses() {

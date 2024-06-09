@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from django.db.models import Sum, Avg
+from django.db.models import Sum, Avg, Q
 from django.shortcuts import render
 import requests
 from rest_framework.decorators import api_view
@@ -120,7 +120,7 @@ def get_transactions_by_address(request, address):
     API endpoint to retrieve transactions for a given address in a paginated format.
     """
     # Filter transactions by address
-    queryset = Transaction.objects.filter(address__address=address)
+    queryset = Transaction.objects.filter(address__address=address).order_by('timestamp')
     if not queryset.exists():
         return Response({'message': 'No transactions found for this address.'}, status=404)
 
@@ -129,16 +129,36 @@ def get_transactions_by_address(request, address):
 
     total_gas_spent = 0
     total_fees = 0
+    fees_over_time = {
+        'labels': [],
+        'datasets': [
+            {
+                'label': 'Fees over time',
+                'backgroundColor': '#111827',
+                'data': []
+            }
+        ]
+    }
+
     for transaction in queryset:
         total_gas_spent += int(transaction.total_gas_paid)
+        fees_over_time['labels'].append(transaction.timestamp.strftime('%H:%M'))
+        fees_over_time['datasets'][0]['data'].append(transaction.total_gas_paid)
+
+    success = queryset.filter(error_status='success')
 
     response = {
         'transactions': serializer.data,
         'average_gas_price': total_gas_spent / queryset.count(),
         'average_fee_paid': total_fees / queryset.count(),
+        'failed_transactions': queryset.count() - success.count(),
+        'succeded_transactions': success.count(),
+        'fees_over_time_graph': fees_over_time,
     }
 
     return Response(response)
+
+
 @api_view(['GET'])
 def gas_fee(request, address):
     queryset = Transaction.objects.filter(address__address=address)
@@ -154,6 +174,7 @@ def gas_fee(request, address):
         total_gas_spent += int(transaction.total_gas_paid)
 
     return Response(total_gas_spent / queryset.count())
+
 
 def calculate_transaction_cost_xrp(base_fee_per_gas, priority_fee_per_gas, total_gas_used):
     """
