@@ -4,6 +4,9 @@ Luminal is an analytics application designed to help enterprises and solo dApp d
 
 ![Luminal screen cap](./frontend/public/screencap.png)
 
+## Demo
+
+https://luminal-rho.vercel.app/
 
 ## Overview
 
