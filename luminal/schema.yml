@@ -2,6 +2,6 @@ openapi: 3.0.3
 info:
   title: Luminal API
   version: 0.0.1
-  description: The XRPL API app
+  description: The Luminal API provides robust, real-time access to XRPL (XRP Ledger) data, enabling seamless integration with your existing analytics tools. Designed for enterprises and solo developers alike, the API allows you to fetch, analyze, and visualize XRPL data effortlessly.
 paths: {}
 components: {}

@@ -158,6 +158,28 @@ def get_transactions_by_address(request, address):
 
     return Response(response)
 
+@api_view(['GET'])
+def fees_over_time(request, address):
+    queryset = Transaction.objects.filter(address__address=address).order_by('timestamp')
+    if not queryset.exists():
+        return Response({'message': 'No transactions found for this address.'}, status=404)
+
+    fees_over_time = {
+        'labels': [],
+        'datasets': [
+            {
+                'label': 'Fees over time',
+                'backgroundColor': '#111827',
+                'data': []
+            }
+        ]
+    }
+
+    for transaction in queryset:
+        fees_over_time['labels'].append(transaction.timestamp.strftime('%H:%M'))
+        fees_over_time['datasets'][0]['data'].append(transaction.total_gas_paid)
+
+    return Response(fees_over_time)
 
 @api_view(['GET'])
 def gas_fee(request, address):

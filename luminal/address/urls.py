@@ -6,6 +6,7 @@ urlpatterns = [
     path('health-check/', health_check),
     path('all/', all_address),
     path('gas-fees/<str:address>/', gas_fee),
+    path('fees-over-time/<str:address>/', gas_fee),
     path('sync-data/<str:address>/<str:name>/', sync_data),
     path('sync-data/<str:address>/', sync_data),
     path('<str:address>/', get_transactions_by_address),

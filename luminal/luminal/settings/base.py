@@ -82,7 +82,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Luminal API',
-    'DESCRIPTION': 'The XRPL API app',
+    'DESCRIPTION': 'The Luminal API provides robust, real-time access to XRPL (XRP Ledger) data, enabling seamless integration with your existing analytics tools. ',
     'VERSION': '0.0.1',
     'SERVE_INCLUDE_SCHEMA': False,
     'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
@@ -93,8 +93,6 @@ SPECTACULAR_SETTINGS = {
 
 WSGI_APPLICATION = "luminal.wsgi.application"
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     "default": {
